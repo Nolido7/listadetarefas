@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<style>
+  body {
+    font-family: Cursive;
+    background-image: url('todolist.jpg');
+    color: #000;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#task-container {
+    text-align: center;
+    background-color: #dddd;
+    padding: 30px;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#task-input {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: chocolate;
+    color: #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: black;
+}
+
+#task-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+li {
+    background-color: #fff;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+li button {
+    background-color: #ff000f;
+    color: #fff;
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    display: none; /* Oculta o botão por padrão */
+}
+
+li:hover button {
+    display: inline-block; /* Mostra o botão ao passar o mouse sobre a tarefa */
+}
+
+li button:hover {
+    background-color: #e64242;
+}
+
+li button i {
+    margin-right: 5px;
+}
+
+/* Adicione animações para adicionar e excluir tarefas */
+li.fade-in {
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeInUp 0.5s forwards ease;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+li.fade-out {
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeOutDown 0.5s forwards ease;
+}
+
+@keyframes fadeOutDown {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+</style>
+<body>
+    <div id="task-container">
+        <h1>Lista de Tarefas</h1>
+        <input type="text" id="task-input" placeholder="Adicionar nova tarefa">
+        <button onclick="addTask()">Adicionar Tarefa</button>
+        <ul id="task-list"></ul>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          loadTasks(); // Carrega as tarefas salvas ao carregar a página
+      });
+
+      const taskInput = document.getElementById('task-input');
+      const taskList = document.getElementById('task-list');
+
+      function addTask() {
+          const taskText = taskInput.value.trim();
+
+          if (taskText !== '') {
+              const taskItem = document.createElement('li');
+              taskItem.innerText = taskText;
+
+              const deleteButton = document.createElement('button');
+              deleteButton.innerText = 'Excluir';
+              deleteButton.addEventListener('click', () => deleteTask(taskItem));
+
+              taskItem.appendChild(deleteButton);
+              taskList.appendChild(taskItem);
+
+              saveTasks(); // Atualizado para salvar todas as tarefas
+              taskInput.value = ''; // Limpa o campo de entrada
+          }
+      }
+
+      function deleteTask(taskItem) {
+          taskList.removeChild(taskItem);
+          saveTasks(); // Atualizado para salvar todas as tarefas após a exclusão
+      }
+
+      function saveTasks() {
+          const tasks = [];
+          document.querySelectorAll('#task-list li').forEach(task => {
+              tasks.push(task.innerText);
+          });
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      function loadTasks() {
+          const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+          savedTasks.forEach(taskText => {
+              const taskItem = document.createElement('li');
+              taskItem.innerText = taskText;
+
+              const deleteButton = document.createElement('button');
+              deleteButton.innerText = 'Excluir';
+              deleteButton.addEventListener('click', () => deleteTask(taskItem));
+
+              taskItem.appendChild(deleteButton);
+              taskList.appendChild(taskItem);
+          });
+      }
+    </script>
+</body>
+</html>
