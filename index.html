@@ -78,7 +78,6 @@ li button {
     border-radius: 24px;
     font-size: 14px;
     transition: background-color 0.3s ease;
-    display: none; /* Oculta o botão por padrão */
 }
 
 li:hover button {
@@ -134,22 +133,25 @@ li.fade-out {
           loadTasks(); // Carrega as tarefas salvas ao carregar a página
       });
 
-      const taskInput = document.getElementById('task-input');
-      const taskList = document.getElementById('task-list');
-
       function addTask() {
+          const taskInput = document.getElementById('task-input');
           const taskText = taskInput.value.trim();
 
           if (taskText !== '') {
               const taskItem = document.createElement('li');
-              taskItem.innerText = taskText;
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.addEventListener('change', () => toggleTaskCompletion(taskItem, checkbox));
+
+              taskItem.appendChild(checkbox);
+              taskItem.appendChild(document.createTextNode(taskText));
 
               const deleteButton = document.createElement('button');
               deleteButton.innerText = 'Excluir';
               deleteButton.addEventListener('click', () => deleteTask(taskItem));
 
               taskItem.appendChild(deleteButton);
-              taskList.appendChild(taskItem);
+              document.getElementById('task-list').appendChild(taskItem);
 
               saveTasks(); // Atualizado para salvar todas as tarefas
               taskInput.value = ''; // Limpa o campo de entrada
@@ -157,14 +159,21 @@ li.fade-out {
       }
 
       function deleteTask(taskItem) {
-          taskList.removeChild(taskItem);
+          document.getElementById('task-list').removeChild(taskItem);
           saveTasks(); // Atualizado para salvar todas as tarefas após a exclusão
+      }
+
+      function toggleTaskCompletion(taskItem, checkbox) {
+          taskItem.style.textDecoration = checkbox.checked ? 'line-through' : 'none';
+          saveTasks(); // Atualizado para salvar a conclusão da tarefa
       }
 
       function saveTasks() {
           const tasks = [];
           document.querySelectorAll('#task-list li').forEach(task => {
-              tasks.push(task.innerText);
+              const taskText = task.childNodes[1].textContent;
+              const isCompleted = task.childNodes[0].checked;
+              tasks.push({ text: taskText, completed: isCompleted });
           });
           localStorage.setItem('tasks', JSON.stringify(tasks));
       }
@@ -172,18 +181,28 @@ li.fade-out {
       function loadTasks() {
           const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-          savedTasks.forEach(taskText => {
+          savedTasks.forEach(task => {
               const taskItem = document.createElement('li');
-              taskItem.innerText = taskText;
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.checked = task.completed;
+              checkbox.addEventListener('change', () => toggleTaskCompletion(taskItem, checkbox));
+
+              taskItem.appendChild(checkbox);
+              taskItem.appendChild(document.createTextNode(task.text));
 
               const deleteButton = document.createElement('button');
               deleteButton.innerText = 'Excluir';
               deleteButton.addEventListener('click', () => deleteTask(taskItem));
 
               taskItem.appendChild(deleteButton);
-              taskList.appendChild(taskItem);
+              document.getElementById('task-list').appendChild(taskItem);
+
+              if (task.completed) {
+                  taskItem.style.textDecoration = 'line-through';
+              }
           });
       }
     </script>
 </body>
-</html>
+    </html>
